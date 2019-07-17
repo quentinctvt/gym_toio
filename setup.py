@@ -1,4 +1,4 @@
-from setuptools import *
+from setuptools import setup
 
 setup(name='gym_toio',
       version='0.0.1',
