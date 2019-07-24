@@ -10,6 +10,21 @@ from gym import spaces, logger
 from gym.utils import seeding
 import numpy as np
 import random
+def diff_angle(position_toio,theta_toio,target):
+    #theta_toio en degrés
+    if target[0]-position_toio[0]<0:
+        n=1
+    else:
+        n=0
+    if target[0]-position_toio[0]==0:
+        if target[1]-position_toio[1]>0:
+            angle=PI/2
+        else :
+            angle=3*PI/2
+    else:
+        angle=arctan((target[1]-position_toio[1])/(target[0]-position_toio[0]))+n*PI
+    return(-angle-theta_toio)
+
 def distance(position1, position2):
     return(math.sqrt((position1[0]-position2[0])**2+(position1[1]-position2[1])**2))
 class ToioEnv(gym.Env):
@@ -232,25 +247,33 @@ class ToioEnv(gym.Env):
             pole.add_attr(self.carttrans)
             self.viewer.add_geom(pole)
             '''
+            self.rotation = rendering.Transform()
+
+
             self.rect_limit1=rendering.FilledPolygon([(0,0),(1200,0),(1200,400),(0,400)])
+            self.rect_mimit1.add_attr(self.rotation)
             self.rect_limit1.set_color(1,0,0)
             self.viewer.add_geom(self.rect_limit1)
 
-            self.rect_limit1=rendering.FilledPolygon([(0,800),(1200,800),(1200,1200),(0,1200)])
-            self.rect_limit1.set_color(1,0,0)
-            self.viewer.add_geom(self.rect_limit1)
+            self.rect_limit2=rendering.FilledPolygon([(0,800),(1200,800),(1200,1200),(0,1200)])
+            self.rect_mimit2.add_attr(self.rotation)
+            self.rect_limit2.set_color(1,0,0)
+            self.viewer.add_geom(self.rect_limit2)
             
-            self.rect_limit1=rendering.FilledPolygon([(0,400),(400,400),(400,800),(0,800)])
-            self.rect_limit1.set_color(1,0,0)
-            self.viewer.add_geom(self.rect_limit1)
+            self.rect_limit3=rendering.FilledPolygon([(0,400),(400,400),(400,800),(0,800)])
+            self.rect_mimit3.add_attr(self.rotation)
+            self.rect_limit3.set_color(1,0,0)
+            self.viewer.add_geom(self.rect_limit3)
 
-            self.rect_limit1=rendering.FilledPolygon([(800,400),(1200,400),(1200,800),(800,800)])
-            self.rect_limit1.set_color(1,0,0)
-            self.viewer.add_geom(self.rect_limit1)
+            self.rect_limit4=rendering.FilledPolygon([(800,400),(1200,400),(1200,800),(800,800)])
+            self.rect_mimit4.add_attr(self.rotation)
+            self.rect_limit4.set_color(1,0,0)
+            self.viewer.add_geom(self.rect_limit4)
             
             l,r,t,b = -toio_size/2,toio_size/2,toio_size/2,-toio_size/2
             toio = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
             self.toiotrans = rendering.Transform()
+            self.toio.add_attr(self.rotation)
             toio.add_attr(self.toiotrans)
             self.viewer.add_geom(toio)
             
@@ -260,6 +283,7 @@ class ToioEnv(gym.Env):
             #self.recttrans = rendering.Transform(translation=(math.cos(theta)*toio_size/2,math.sin(theta)*toio_size/2 ))
             rect.add_attr(self.toiotrans)
             rect.add_attr(self.recttrans)
+            self.rect.add_attr(self.rotation)
             rect.set_color(.5,.5,.8)
             self.viewer.add_geom(rect)
             
@@ -267,6 +291,7 @@ class ToioEnv(gym.Env):
             rect_target=rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
             self.rect_targettrans = rendering.Transform()
             rect_target.add_attr(self.rect_targettrans)
+            self.rect_target.add_attr(self.rotation)
             #self.axle.add_attr(self.carttrans)
             rect_target.set_color(0,1,0)
             self.viewer.add_geom(rect_target)
@@ -315,8 +340,9 @@ class ToioEnv(gym.Env):
         #cartx = x[0]*scale+screen_width/2.0 # MIDDLE OF CART
         self.rect_targettrans.set_translation(x[3],x[4])
         self.toiotrans.set_translation(toio_x, toio_y)
-        self.recttrans.set_translation(math.cos(theta)*toio_size/2,math.sin(theta)*toio_size/2 )
-        self.toiotrans.set_rotation(theta)
+        self.rotation.set_rotation(theta)
+        #self.recttrans.set_translation(math.cos(theta)*toio_size/2,math.sin(theta)*toio_size/2 )
+        #self.toiotrans.set_rotation(theta)
         #self.recttrans.set_rotation(-theta)
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
