@@ -8,3 +8,8 @@ register(
     id='toiofewactions-v0',
     entry_point='gym_toio.envs:ToiofewactionsEnv', 
 )
+
+register(
+    id='toiosuccess-v0',
+    entry_point='gym_toio.envs:ToiosuccessEnv', 
+)
