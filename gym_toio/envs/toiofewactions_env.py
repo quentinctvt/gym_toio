@@ -25,8 +25,6 @@ def function_M(x, limite):
 
 
 def find_angle(position_toio, theta_toio, position_target):
-    y_target=400-position_target[1]
-    y=400-position_toio[1]
     theta_toio *= np.pi/180
     # thet_toio en radians
     if position_target[0]-position_toio[0] < 0:
@@ -34,13 +32,13 @@ def find_angle(position_toio, theta_toio, position_target):
     else:
         n = 0
     if position_target[0]-position_toio[0] == 0:
-        if y_target-y > 0:
+        if position_target[1]-position_toio[1] > 0:
             theta = np.pi/2
         else:
             theta = 3*np.pi/2
     else:
         theta = arctan(
-            (y_target-y)/(position_target[0]-position_toio[0]))+n*np.pi
+            (position_target[1]-position_toio[1])/(position_target[0]-position_toio[0]))+n*np.pi
     return(function_M((-theta-theta_toio) % (2*np.pi), np.pi/2))
 def distance(position1, position2):
     return(math.sqrt((position1[0]-position2[0])**2+(position1[1]-position2[1])**2))
@@ -113,7 +111,7 @@ class ToiofewactionsEnv(gym.Env):
             np.finfo(np.float32).max])
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
         '''
-        self.action_space = spaces.Discrete(2)
+        self.action_space = spaces.Discrete(4)
         
 
         self.seed()
@@ -136,14 +134,14 @@ class ToiofewactionsEnv(gym.Env):
         elif action == 1:
             theta += 2
             theta = theta % (360)
-        '''
+        
         elif action == 2:
             x += 2*math.cos(float(theta)*math.pi/180)
             y += 2*math.sin(float(theta)*math.pi/180)
         elif action == 3:
             x -= 2*math.cos(float(theta)*math.pi/180)
             y -= 2*math.sin(float(theta)*math.pi/180)
-        '''
+        
         '''
         if action == 0:
             theta -= 2
@@ -184,29 +182,40 @@ class ToiofewactionsEnv(gym.Env):
         else:
             done=True
         if not done:
+            '''
+            try:
+                reward=1/abs(state[2]-90)
+            except:
+                print('test')
+                reward=1.0
+            '''
+
+
+            reward = -distance([x,y], [x_target,y_target]) -find_angle(state[0:2],state[2],state[3:5])*180/np.pi
+            #reward = (np.pi/(find_angle(state[0:2],state[2],state[3:5])*180))*10**3
             #reward = (1/distance([x,y], [x_target,y_target])+np.pi/(find_angle(state[0:2],state[2],state[3:5])*180))*10**3
-            if find_angle(state[0:2],state[2],state[3:5])*180/np.pi<=3:
-                reward = 10000.0
-            else:
-                reward = (np.pi/(find_angle(state[0:2],state[2],state[3:5])*180))*10**3
         elif self.steps_beyond_done is None:
+
             # Pole just fell!
             self.steps_beyond_done = 0
-            #reward = (1/distance([x,y], [x_target,y_target])+np.pi/(find_angle(state[0:2],state[2],state[3:5])*180))*10**3
-            if find_angle(state[0:2],state[2],state[3:5])*180/np.pi<=3:
-                reward = 10000.0
-            else:
-                reward = (np.pi/(find_angle(state[0:2],state[2],state[3:5])*180))*10**3
+            reward = -distance([x,y], [x_target,y_target]) -find_angle(state[0:2],state[2],state[3:5])*180/np.pi
+            '''
+            try:
+                reward=1/abs(state[2]-90)
+            except:
+                reward=1.0
+            '''
+           #S reward = (np.pi/(find_angle(state[0:2],state[2],state[3:5])*180))*10**3
         else:
             if self.steps_beyond_done == 0:
                 logger.warn("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
             self.steps_beyond_done += 1
-            reward = 0.0
+            reward = -1000
        
         return np.array(self.state), reward, done, {}
 
     def reset(self):
-        self.state=[random.randrange(380)+10,random.randrange(380)+10,10,random.randrange(380)+10,random.randrange(380)+10]
+        self.state=[random.randrange(380)+10,random.randrange(380)+10,random.randrange(361),random.randrange(380)+10,random.randrange(380)+10]
         #self.state=[random.randrange(380)+10,random.randrange(380)+10,random.randrange(361),random.randrange(380)+10,random.randrange(380)+10]
         self.initial_distance=distance(self.state[0:2],self.state[3:5])
         self.steps_beyond_done = None
@@ -283,6 +292,10 @@ class ToiofewactionsEnv(gym.Env):
         if self.viewer:
             self.viewer.close()
             self.viewer = None
+
+
+
+
 
 
 
