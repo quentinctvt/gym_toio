@@ -26,13 +26,13 @@ EC_TEMPS=1.004
 
 def gaussian():
     return(np.random.randn() * EC_TEMPS + ESPERANCE_TEMPS)
-
+'''
 class DrawText:
     def __init__(self, label:pyglet.text.Label):
         self.label=label
     def render(self):
         self.label.draw()
-
+'''
 def function_M(x, limite):
     if x <= limite:
         return(x)
