@@ -63,7 +63,9 @@ def distance(position1, position2):
 class ToioTimeObstaclesStateEnv(gym.Env):
 
     metadata = {
-        'render.modes': ['batch', 'rgb_array'],
+        'render.modes': ['human', 'rgb_array'],
+        'video.frames_per_second' : 50
+    }
 
     def __init__(self):
         self.action_space = spaces.Discrete(3)  #CHANGE HERE TO ADD ACTIONS
