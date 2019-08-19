@@ -16,5 +16,5 @@ register(
 
 register(
     id='toiotimeobstaclesstate-v0',
-    entry_point='gym_toio.envs:ToioTimeObstaclesstateEnv', 
+    entry_point='gym_toio.envs:ToioTimeObstaclesStateEnv', 
 )
